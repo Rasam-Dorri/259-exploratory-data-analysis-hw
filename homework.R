@@ -134,7 +134,13 @@ ds %>%
   summarise(extreme_days = count_extreme_days(cur_data())) %>%
   arrange(desc(extreme_days))
 
+#Mcomment: Check out the alternative code from the key
+extreme_days <- . %>% 
+  mutate(is_extreme_day = actual_min_temp == record_min_temp | actual_max_temp == record_max_temp,
+         is_extreme_day = as.numeric(is_extreme_day)) %>% 
+  summarize(n_extreme = sum(is_extreme_day))
 
+ds %>% group_by(city) %>% extreme_days %>% arrange(-n_extreme)
 
 # QUESTION 6
 #> Pull out the month from the date and make "month" a factor
@@ -147,6 +153,9 @@ ds <- ds %>%
                    levels = 1:12, 
                    labels = month.name)
   )
+
+#Mcomment: if you use month( ,label = T) you don't need the factor() function
+ds$month <- month(ds$date, label = T) #makes new variable into an ordered factor
 
 # Split into a list of 12 tibbles, one per month
 ds_by_month <- split(ds, ds$month)
